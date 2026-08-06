@@ -20,11 +20,14 @@ app.use(cors({ origin: true }))
 app.use(express.json())
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS,
   },
+  family: 4, // forces IPv4 - avoids Render's ENETUNREACH IPv6 issue with Gmail
 })
 
 transporter.verify((error) => {
