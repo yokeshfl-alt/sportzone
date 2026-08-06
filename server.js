@@ -3,53 +3,41 @@ dotenv.config()
 
 import express from 'express'
 import cors from 'cors'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 const PORT = parseInt(process.env.API_PORT || process.env.PORT || '8451', 10)
-const EMAIL_USER = process.env.EMAIL_USER
-const EMAIL_PASS = process.env.EMAIL_PASS
+const RESEND_API_KEY = process.env.RESEND_API_KEY
 const EMAIL_TARGET = 'yokeshkumar192007@gmail.com'
 
-if (!EMAIL_USER || !EMAIL_PASS) {
-  console.error('EMAIL_USER and EMAIL_PASS environment variables are required for email delivery.')
+if (!RESEND_API_KEY) {
+  console.error('RESEND_API_KEY environment variable is required for email delivery.')
   process.exit(1)
 }
+
+const resend = new Resend(RESEND_API_KEY)
 
 const app = express()
 app.use(cors({ origin: true }))
 app.use(express.json())
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-  family: 4, // forces IPv4 - avoids Render's ENETUNREACH IPv6 issue with Gmail
-})
-
-transporter.verify((error) => {
-  if (error) {
-    console.error('Email transport verification failed:', error)
-  } else {
-    console.log('Email transporter ready')
-  }
-})
-
 async function sendMail(subject, text) {
-  console.log(`Sending email from ${EMAIL_USER} to ${EMAIL_TARGET} with subject: ${subject}`)
+  console.log(`Sending email to ${EMAIL_TARGET} with subject: ${subject}`)
 
   try {
-    const info = await transporter.sendMail({
-      from: EMAIL_USER,
+    const { data, error } = await resend.emails.send({
+      from: 'SportZone <onboarding@resend.dev>',
       to: EMAIL_TARGET,
       subject,
       text,
     })
-    console.log('Email send result:', info.response)
-    return info
+
+    if (error) {
+      console.error('sendMail failed:', error)
+      throw error
+    }
+
+    console.log('Email send result:', data)
+    return data
   } catch (error) {
     console.error('sendMail failed:', error)
     throw error
