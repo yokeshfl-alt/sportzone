@@ -1,0 +1,10 @@
+{
+  "description": "An online sports shop offering badminton, cricket, and volleyball gear with a sleek liquid crystal glass UI and engaging 3D effects for immersive shopping.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
